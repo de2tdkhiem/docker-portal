@@ -1,80 +1,26 @@
-## Requirement
-- OS: *nix (Macos, Ubuntu…). Some commands in this document maybe not working in Windows. If you are Windows user, you should do some action by manual (git clone, copy env local…)
-- Docker: version 1.13.0+
-- Bitbucket Repository Access: You should contact your manager to add your email to all repository.
-- Personal SSH Key: Make sure that your personal ssh key added to bitbucket: https://bitbucket.org/account/settings/ssh-keys/
+# 1.Tại branch develop và feature/test-01 [cùng lịch sử commit + code]
+![img](./test01.png?raw=true "Image")
 
-## Clone repository and Build
-This document will use ~/code/stock as ROOT directory. You totally use custom path yourself but in this case, you must change env variable APP_PATH before building docker image.
+# 2.Tại branch develop, giả sử xuất hiện commit mới với thay đổi tại file testing.md với nội dung: "Commit from dev branch"
 
-NOTE: ROOT directory contain ALL repo of project: api, docker...
 
-Go to ROOT directory and run command clone this repository and create .env file.
+# 3.Tại branch feature/test-01, giả sử xuất hiện commit mới với thay đổi tại file testing.md với nội dung: "Commit from feature/test-01"
 
-```shell
-cd ~/code/portal
-git clone git@github.com:cmcthphu/de2_docker.git docker
-cp docker/.env{.example,}
-```
+# 4.Ở đây, cả 2 branch là develop và feature/test-01 có thay đổi tại dòng 2 của file testing.md, nên sẽ có conflict
 
-Clone api repo
+# 5.Lúc này, tại branch feature/test-01 ta sẽ tiến hành sử dụng rebase để fix conflict bằng câu lệnh:
+- git pull --rebase origin develop
 
-```shell
-cd ~/code/portal
-git clone -b develop git@github.com:cmcthphu/de2_api.git api
-cp api/.env{.example,}
-```
+# 6.Nếu chúng ta không muốn rebase nữa, thì có thể chạy lệnh bên dưới, lệnh này sẽ hủy yêu cầu rebase
+- git rebase --abort
 
-Go to `docker` project.
+# 7. Để hoàn thành rebase, chúng ta cần fix hết các conflict nếu có, ở đây sẽ fix conflict ở file testing.md, sau khi fix xong, sẽ tiến hành add file đã resolve conflict vào staged. Khi tất cả các conflict đã được fix hết, chúng ta sẽ đến bước kế tiếp bằng cách chạy lệnh
+- git rebase --continue
 
-```shell
-cd ~/code/portal/docker
-```
 
-If you use custom path as ROOT directory, config APP_PATH in `.env`. Make sure Docker has access permission to your path.
+# 8.Tiếp theo, chúng ta sẽ cần rewrite lại commit message bằng vi, nhấn i để bắt đầu mode edit message, esc để thoát khỏi mode edit, :wq để lưu message đã thay đổi và đóng vi
+# Lúc này check lại lịch sử commit, ta sẽ thấy có cả commit từ dev và feature/test-01
 
-```shell
-APP_PORT=3080
-APP_PATH=~/code/portal
-POSTGRES_PORT=35432
-COMPOSE_PROJECT_NAME=portal
-```
 
-Create `data` folder for postgres service
-
-```shell
-mkdir postgres/data
-```
-
-Build and run docker compose
-
-```shell
-docker compose up -d --build
-```
-
-Go to container
-
-```shell
-docker compose exec api sh
-```
-
-Composer install api
-
-```shell
-cd api
-composer install
-```
-
-## Connect and Import Database
-- Connect pgsql from SQL Tool
-
-```shell
-Host: localhost
-Port: 35432
-User: postgres
-Password: secret
-Database: market
-```
-
-## Conclusion
-That’s all. You already to complete setup stock project in local. Let’s make amazing code.
+# 9.Hoàn thành việc fix conflict, chúng ta sẽ cần push force thay đổi lên remote branch
+- git push -f
